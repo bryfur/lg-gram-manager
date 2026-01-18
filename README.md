@@ -24,7 +24,7 @@ GTK4 application for managing LG Gram laptop features on Linux.
 ## Installation
 
 ```bash
-sudo dpkg -i lg-gram-manager_1.0.0_amd64.deb
+sudo dpkg -i lg-gram-manager_1.0.0_all.deb
 ```
 
 During installation, your user will be added to the `lg-gram` group, which grants permission to modify laptop settings without requiring a password each time. A system restart may be required for this change to take effect.
