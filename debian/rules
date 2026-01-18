@@ -13,6 +13,7 @@ override_dh_auto_install:
 	install -D -m 644 debian/org.lg-gram-manager.gtk.desktop debian/lg-gram-manager/usr/share/applications/org.lg-gram-manager.gtk.desktop
 	install -D -m 644 debian/org.lg-gram-manager.gtk.svg debian/lg-gram-manager/usr/share/icons/hicolor/scalable/apps/org.lg-gram-manager.gtk.svg
 	install -D -m 644 debian/org.lg-gram-manager.policy debian/lg-gram-manager/usr/share/polkit-1/actions/org.lg-gram-manager.policy
+	install -D -m 644 debian/99-lg-gram-manager.rules debian/lg-gram-manager/etc/udev/rules.d/99-lg-gram-manager.rules
 
 override_dh_auto_clean:
 	rm -rf __pycache__ *.egg-info

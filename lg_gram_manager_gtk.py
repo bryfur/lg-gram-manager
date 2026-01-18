@@ -31,11 +31,6 @@ class SysfsInterface:
     KBD_LED_ALT = "/sys/class/leds/lg_laptop::kbd_backlight/brightness"
     TPAD_LED_ALT = "/sys/class/leds/lg_laptop::tpad/brightness"
     
-    # Authentication state
-    _authenticated = False
-    _sudo_timestamp_thread = None
-    _stop_refresh = False
-    
     @classmethod
     def _get_led_path(cls, primary: str, alt: str) -> str:
         """Get the actual LED path that exists on the system."""
@@ -52,70 +47,6 @@ class SysfsInterface:
     @classmethod
     def get_tpad_led_path(cls) -> str:
         return cls._get_led_path(cls.TPAD_LED, cls.TPAD_LED_ALT)
-    
-    @classmethod
-    def is_authenticated(cls) -> bool:
-        """Check if we have cached sudo credentials."""
-        try:
-            result = subprocess.run(
-                ['sudo', '-n', 'true'],
-                capture_output=True,
-                timeout=5
-            )
-            return result.returncode == 0
-        except:
-            return False
-    
-    @classmethod
-    def authenticate(cls, password: str) -> bool:
-        """Authenticate with sudo using password."""
-        try:
-            result = subprocess.run(
-                ['sudo', '-S', '-v'],
-                input=password.encode() + b'\n',
-                capture_output=True,
-                timeout=10
-            )
-            if result.returncode == 0:
-                cls._authenticated = True
-                cls._start_sudo_refresh()
-                return True
-            return False
-        except Exception as e:
-            print(f"Authentication error: {e}")
-            return False
-    
-    @classmethod
-    def _start_sudo_refresh(cls):
-        """Start a background thread to keep sudo credentials alive."""
-        if cls._sudo_timestamp_thread is not None:
-            return
-        
-        cls._stop_refresh = False
-        
-        def refresh_loop():
-            while not cls._stop_refresh:
-                for _ in range(240):
-                    if cls._stop_refresh:
-                        return
-                    threading.Event().wait(1)
-                try:
-                    subprocess.run(['sudo', '-v'], capture_output=True, timeout=5)
-                except:
-                    pass
-        
-        cls._sudo_timestamp_thread = threading.Thread(target=refresh_loop, daemon=True)
-        cls._sudo_timestamp_thread.start()
-    
-    @classmethod
-    def stop_sudo_refresh(cls):
-        """Stop the sudo refresh thread and clear credentials."""
-        cls._stop_refresh = True
-        cls._authenticated = False
-        try:
-            subprocess.run(['sudo', '-k'], capture_output=True, timeout=5)
-        except:
-            pass
     
     @staticmethod
     def read_value(path: str) -> Optional[str]:
@@ -137,13 +68,14 @@ class SysfsInterface:
                 GLib.idle_add(callback, True)
             return True
         except PermissionError:
-            def run_sudo():
+            def run_pkexec():
                 try:
+                    # Use pkexec for polkit authentication - shows GUI prompt if needed
                     result = subprocess.run(
-                        ['sudo', '-n', 'tee', path],
+                        ['pkexec', 'tee', path],
                         input=str(value).encode(),
                         capture_output=True,
-                        timeout=10
+                        timeout=60
                     )
                     success = result.returncode == 0
                     if callback:
@@ -155,17 +87,17 @@ class SysfsInterface:
                         GLib.idle_add(callback, False)
                     return False
                 except Exception as e:
-                    print(f"Error using sudo: {e}")
+                    print(f"Error using pkexec: {e}")
                     if callback:
                         GLib.idle_add(callback, False)
                     return False
             
             if callback:
-                thread = threading.Thread(target=run_sudo, daemon=True)
+                thread = threading.Thread(target=run_pkexec, daemon=True)
                 thread.start()
                 return True
             else:
-                return run_sudo()
+                return run_pkexec()
         except (IOError, FileNotFoundError) as e:
             print(f"Error writing to {path}: {e}")
             if callback:
@@ -176,34 +108,6 @@ class SysfsInterface:
     def path_exists(path: str) -> bool:
         """Check if a sysfs path exists."""
         return os.path.exists(path)
-
-
-class PasswordDialog(Adw.AlertDialog):
-    """Dialog for entering sudo password."""
-    
-    def __init__(self):
-        super().__init__()
-        
-        self.set_heading("Authentication Required")
-        self.set_body("Administrator password required to modify system settings:")
-        
-        # Password entry
-        self.password_entry = Gtk.PasswordEntry()
-        self.password_entry.set_show_peek_icon(True)
-        self.password_entry.set_margin_top(10)
-        self.password_entry.set_margin_start(20)
-        self.password_entry.set_margin_end(20)
-        self.password_entry.props.activates_default = True
-        self.set_extra_child(self.password_entry)
-        
-        self.add_response("cancel", "Cancel")
-        self.add_response("authenticate", "Authenticate")
-        self.set_response_appearance("authenticate", Adw.ResponseAppearance.SUGGESTED)
-        self.set_default_response("authenticate")
-        self.set_close_response("cancel")
-    
-    def get_password(self) -> Optional[str]:
-        return self.password_entry.get_text()
 
 
 class ToggleRow(Adw.ActionRow):
@@ -498,9 +402,6 @@ class LGGramManagerWindow(Adw.ApplicationWindow):
         
         self._create_widgets()
         self._check_driver()
-        
-        # Authenticate on startup
-        GLib.timeout_add(100, self._authenticate_on_startup)
     
     def _create_widgets(self):
         """Create all GUI widgets."""
@@ -618,33 +519,6 @@ class LGGramManagerWindow(Adw.ApplicationWindow):
             dialog.add_response("ok", "OK")
             dialog.choose(self, None, None)
     
-    def _authenticate_on_startup(self):
-        """Prompt for authentication when the app starts."""
-        if SysfsInterface.is_authenticated():
-            return False
-        
-        dialog = PasswordDialog()
-        
-        def on_response(dialog, result):
-            response = dialog.choose_finish(result)
-            if response == "authenticate":
-                password = dialog.get_password()
-                if password and SysfsInterface.authenticate(password):
-                    return
-                # Show error
-                error_dialog = Adw.AlertDialog()
-                error_dialog.set_heading("Authentication Failed")
-                error_dialog.set_body(
-                    "Authentication failed or cancelled.\n\n"
-                    "You can still view settings, but changes will require "
-                    "authentication for each action."
-                )
-                error_dialog.add_response("ok", "OK")
-                error_dialog.choose(self, None, None)
-        
-        dialog.choose(self, None, on_response)
-        return False
-    
     def _refresh_all(self):
         """Refresh all controls."""
         self.reader_mode.refresh()
@@ -691,7 +565,6 @@ class LGGramManagerApp(Adw.Application):
     
     def do_shutdown(self):
         """Called when the application is shutting down."""
-        SysfsInterface.stop_sudo_refresh()
         Adw.Application.do_shutdown(self)
 
 

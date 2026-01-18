@@ -1,0 +1,19 @@
+# LG Gram Manager - Allow users in 'lg-gram' group to control laptop features
+# Install: copy to /etc/udev/rules.d/ and run: sudo udevadm control --reload-rules
+
+# LG Laptop platform controls
+SUBSYSTEM=="platform", DRIVER=="lg-laptop", ATTR{reader_mode}!="", RUN+="/bin/chmod 0664 /sys/devices/platform/lg-laptop/reader_mode", RUN+="/bin/chgrp lg-gram /sys/devices/platform/lg-laptop/reader_mode"
+SUBSYSTEM=="platform", DRIVER=="lg-laptop", ATTR{fn_lock}!="", RUN+="/bin/chmod 0664 /sys/devices/platform/lg-laptop/fn_lock", RUN+="/bin/chgrp lg-gram /sys/devices/platform/lg-laptop/fn_lock"
+SUBSYSTEM=="platform", DRIVER=="lg-laptop", ATTR{fan_mode}!="", RUN+="/bin/chmod 0664 /sys/devices/platform/lg-laptop/fan_mode", RUN+="/bin/chgrp lg-gram /sys/devices/platform/lg-laptop/fan_mode"
+SUBSYSTEM=="platform", DRIVER=="lg-laptop", ATTR{usb_charge}!="", RUN+="/bin/chmod 0664 /sys/devices/platform/lg-laptop/usb_charge", RUN+="/bin/chgrp lg-gram /sys/devices/platform/lg-laptop/usb_charge"
+
+# Battery charge threshold
+SUBSYSTEM=="power_supply", ATTR{charge_control_end_threshold}!="", RUN+="/bin/chmod 0664 $sys$devpath/charge_control_end_threshold", RUN+="/bin/chgrp lg-gram $sys$devpath/charge_control_end_threshold"
+
+# Keyboard backlight
+SUBSYSTEM=="leds", KERNEL=="kbd_backlight", RUN+="/bin/chmod 0664 /sys/class/leds/kbd_backlight/brightness", RUN+="/bin/chgrp lg-gram /sys/class/leds/kbd_backlight/brightness"
+SUBSYSTEM=="leds", KERNEL=="lg_laptop::kbd_backlight", RUN+="/bin/chmod 0664 /sys/class/leds/lg_laptop::kbd_backlight/brightness", RUN+="/bin/chgrp lg-gram /sys/class/leds/lg_laptop::kbd_backlight/brightness"
+
+# Touchpad LED
+SUBSYSTEM=="leds", KERNEL=="tpad_led", RUN+="/bin/chmod 0664 /sys/class/leds/tpad_led/brightness", RUN+="/bin/chgrp lg-gram /sys/class/leds/tpad_led/brightness"
+SUBSYSTEM=="leds", KERNEL=="lg_laptop::tpad", RUN+="/bin/chmod 0664 /sys/class/leds/lg_laptop::tpad/brightness", RUN+="/bin/chgrp lg-gram /sys/class/leds/lg_laptop::tpad/brightness"

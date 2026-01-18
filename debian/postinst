@@ -1,6 +1,25 @@
 #!/bin/bash
 set -e
 
+# Create lg-gram group if it doesn't exist
+if ! getent group lg-gram > /dev/null 2>&1; then
+    groupadd --system lg-gram
+    echo "Created 'lg-gram' group"
+fi
+
+# Add current user to lg-gram group (if running interactively)
+if [ -n "$SUDO_USER" ]; then
+    usermod -aG lg-gram "$SUDO_USER"
+    echo "Added user '$SUDO_USER' to 'lg-gram' group"
+    echo "NOTE: You may need to log out and back in for group changes to take effect"
+fi
+
+# Reload udev rules
+if command -v udevadm > /dev/null 2>&1; then
+    udevadm control --reload-rules
+    udevadm trigger
+fi
+
 #DEBHELPER#
 
 exit 0
