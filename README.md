@@ -2,7 +2,7 @@
 
 GTK4 application for managing LG Gram laptop features on Linux.
 
-![Screenshot](docs/screenshot.png)
+<img src="docs/screenshot.png" width="75%">
 
 ## Features
 
