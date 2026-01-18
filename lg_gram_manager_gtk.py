@@ -11,8 +11,33 @@ from gi.repository import Gtk, Adw, GLib, Gio
 import os
 import subprocess
 from pathlib import Path
-from typing import Optional, Callable
+from typing import Optional, Callable, Tuple
 import threading
+import re
+
+
+# Kernel version that added 3-mode fan control (Optimal/Silent/Performance)
+FAN_3MODE_KERNEL_VERSION = (6, 17)
+
+
+def get_kernel_version() -> Tuple[int, int]:
+    """Get the current kernel major.minor version."""
+    try:
+        with open('/proc/version', 'r') as f:
+            version_string = f.read()
+        # Match "Linux version X.Y.Z" pattern
+        match = re.search(r'Linux version (\d+)\.(\d+)', version_string)
+        if match:
+            return (int(match.group(1)), int(match.group(2)))
+    except Exception as e:
+        print(f"Error reading kernel version: {e}")
+    return (0, 0)
+
+
+def kernel_version_at_least(required: Tuple[int, int]) -> bool:
+    """Check if current kernel meets minimum version requirement."""
+    current = get_kernel_version()
+    return current >= required
 
 
 class SysfsInterface:
@@ -166,8 +191,10 @@ class ToggleRow(Adw.ActionRow):
 
 
 class FanModeRow(Adw.PreferencesRow):
-    """Fan mode control with 3 selectable buttons."""
+    """Fan mode control with 2 or 3 selectable buttons depending on kernel version."""
     
+    # Note: Performance mode (value=2) requires kernel 6.17+
+    # On older kernels, fan_mode only supports 0 (optimal) and 1 (silent)
     FAN_MODES = [
         {"value": 1, "icon": "weather-clear-symbolic", "label": "Silent"},
         {"value": 0, "icon": "emblem-default-symbolic", "label": "Optimal"},
@@ -180,6 +207,7 @@ class FanModeRow(Adw.PreferencesRow):
         self.sysfs_path = sysfs_path
         self.current_mode = -1
         self.buttons = []
+        self.supports_performance = kernel_version_at_least(FAN_3MODE_KERNEL_VERSION)
         
         # Main box
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
@@ -225,6 +253,11 @@ class FanModeRow(Adw.PreferencesRow):
         btn.set_child(box)
         btn.connect("clicked", lambda b, v=mode['value']: self._on_select(v))
         
+        # Disable Performance mode button if kernel < 6.17
+        if mode['value'] == 2 and not self.supports_performance:
+            btn.set_sensitive(False)
+            btn.set_tooltip_text("Performance mode requires kernel 6.17 or later")
+        
         self.buttons.append((mode['value'], btn))
         return btn
     
@@ -247,8 +280,12 @@ class FanModeRow(Adw.PreferencesRow):
             btn.set_sensitive(False)
         
         def on_complete(success):
-            for _, btn in self.buttons:
-                btn.set_sensitive(True)
+            for v, btn in self.buttons:
+                # Keep Performance disabled on older kernels
+                if v == 2 and not self.supports_performance:
+                    btn.set_sensitive(False)
+                else:
+                    btn.set_sensitive(True)
             if success:
                 self.current_mode = value
                 self._update_button_styles()

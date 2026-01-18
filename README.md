@@ -17,7 +17,7 @@ GTK4 application for managing LG Gram laptop features on Linux.
 ## Requirements
 
 - LG Gram laptop with the `lg-laptop` kernel module
-- Linux kernel 4.17+
+- Linux kernel 6.2+ (kernel 6.17+ required for Performance fan mode)
 - GTK4 and libadwaita
 - Python 3.8+
 
