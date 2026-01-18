@@ -11,7 +11,7 @@ fi
 if [ -n "$SUDO_USER" ]; then
     usermod -aG lg-gram "$SUDO_USER"
     echo "Added user '$SUDO_USER' to 'lg-gram' group"
-    echo "NOTE: You may need to log out and back in for group changes to take effect"
+    echo "NOTE: A system restart may be required for group changes to take effect"
 fi
 
 # Reload udev rules

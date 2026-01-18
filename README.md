@@ -2,6 +2,8 @@
 
 GTK4 application for managing LG Gram laptop features on Linux.
 
+![Screenshot](docs/screenshot.png)
+
 ## Features
 
 - Reader mode (blue light filter)
@@ -25,7 +27,7 @@ GTK4 application for managing LG Gram laptop features on Linux.
 sudo dpkg -i lg-gram-manager_1.0.0_amd64.deb
 ```
 
-During installation, your user will be added to the `lg-gram` group, which grants permission to modify laptop settings without requiring a password each time. You must log out and back in for this change to take effect.
+During installation, your user will be added to the `lg-gram` group, which grants permission to modify laptop settings without requiring a password each time. A system restart may be required for this change to take effect.
 
 Or run from source:
 
