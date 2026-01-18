@@ -1,0 +1,14 @@
+lg-gram-manager (1.0.0-1) unstable; urgency=medium
+
+  * Initial release
+  * Features:
+    - Reader mode control
+    - FN lock toggle
+    - Fan mode selection (Silent/Optimal/Performance)
+    - Battery charge limit (80%/100%)
+    - USB charging when off
+    - Keyboard backlight control
+    - Touchpad LED control
+  * Modern UI with light/dark theme support
+
+ -- Bryan <bryan@example.com>  Fri, 03 Jan 2026 12:00:00 +0000

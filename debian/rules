@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE = 1
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	# No build step needed for Python script
+
+override_dh_auto_install:
+	install -D -m 755 lg_gram_manager_gtk.py debian/lg-gram-manager/usr/bin/lg-gram-manager
+	install -D -m 644 debian/org.lg-gram-manager.gtk.desktop debian/lg-gram-manager/usr/share/applications/org.lg-gram-manager.gtk.desktop
+	install -D -m 644 debian/org.lg-gram-manager.gtk.svg debian/lg-gram-manager/usr/share/icons/hicolor/scalable/apps/org.lg-gram-manager.gtk.svg
+	install -D -m 644 debian/org.lg-gram-manager.policy debian/lg-gram-manager/usr/share/polkit-1/actions/org.lg-gram-manager.policy
+
+override_dh_auto_clean:
+	rm -rf __pycache__ *.egg-info
+	dh_auto_clean
+
+override_dh_auto_test:
+	# Skip tests

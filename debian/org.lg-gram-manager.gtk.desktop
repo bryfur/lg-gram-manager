@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=LG Gram Manager
+Comment=Manage LG Gram laptop features
+Exec=lg-gram-manager
+Icon=org.lg-gram-manager.gtk
+Terminal=false
+Type=Application
+Categories=System;Settings;HardwareSettings;
+Keywords=lg;gram;laptop;battery;fan;led;
+StartupNotify=true
