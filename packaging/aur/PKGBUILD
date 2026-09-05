@@ -1,0 +1,23 @@
+# Maintainer: Bryan Furia <bryan.furia@gmail.com>
+pkgname=lg-gram-manager
+pkgver=1.1.0
+pkgrel=1
+pkgdesc="GTK4 GUI for LG Gram laptop features: reader mode, FN lock, fan mode, battery limit, LEDs"
+arch=('any')
+url="https://github.com/bryfur/lg-gram-manager"
+license=('MIT')
+depends=('python' 'python-gobject' 'gtk4' 'libadwaita' 'polkit')
+install="$pkgname.install"
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+package() {
+  cd "$pkgname-$pkgver"
+  install -Dm755 lg_gram_manager_gtk.py "$pkgdir/usr/bin/lg-gram-manager"
+  install -Dm644 debian/org.lg-gram-manager.gtk.desktop -t "$pkgdir/usr/share/applications"
+  install -Dm644 debian/org.lg-gram-manager.gtk.svg -t "$pkgdir/usr/share/icons/hicolor/scalable/apps"
+  install -Dm644 debian/org.lg-gram-manager.policy -t "$pkgdir/usr/share/polkit-1/actions"
+  install -Dm644 debian/99-lg-gram-manager.rules -t "$pkgdir/usr/lib/udev/rules.d"
+  echo 'g lg-gram -' | install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/$pkgname.conf"
+  install -Dm644 debian/copyright "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

@@ -1,0 +1,5 @@
+post_install() {
+  echo "To change settings without a password prompt, add yourself to the lg-gram group:"
+  echo "    sudo usermod -aG lg-gram \$USER"
+  echo "then log out and back in."
+}

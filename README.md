@@ -14,6 +14,12 @@ GTK4 application for managing LG Gram laptop features on Linux.
 - Keyboard backlight control
 - Touchpad LED control
 
+## Hotkeys
+
+Settings changed with the Fn keys (keyboard backlight, fan mode, reader mode, FN lock, touchpad) are picked up by the app automatically.
+
+The driver reports Fn-F1 (the LG control panel key) as F15. Bind F15 to `lg-gram-manager` in your desktop's keyboard settings to open the app with a key press.
+
 ## Requirements
 
 - LG Gram laptop with the `lg-laptop` kernel module

@@ -19,6 +19,9 @@ import re
 # Kernel version that added 3-mode fan control (Optimal/Silent/Performance)
 FAN_3MODE_KERNEL_VERSION = (6, 17)
 
+# How often to re-read sysfs for settings changed via Fn keys
+HW_POLL_INTERVAL_SECONDS = 2
+
 
 def get_kernel_version() -> Tuple[int, int]:
     """Get the current kernel major.minor version."""
@@ -47,6 +50,7 @@ class SysfsInterface:
     READER_MODE = "/sys/devices/platform/lg-laptop/reader_mode"
     FN_LOCK = "/sys/devices/platform/lg-laptop/fn_lock"
     BATTERY_THRESHOLD = "/sys/class/power_supply/CMB0/charge_control_end_threshold"
+    POWER_SUPPLY_DIR = "/sys/class/power_supply"
     FAN_MODE = "/sys/devices/platform/lg-laptop/fan_mode"
     USB_CHARGE = "/sys/devices/platform/lg-laptop/usb_charge"
     KBD_LED = "/sys/class/leds/kbd_backlight/brightness"
@@ -72,6 +76,22 @@ class SysfsInterface:
     @classmethod
     def get_tpad_led_path(cls) -> str:
         return cls._get_led_path(cls.TPAD_LED, cls.TPAD_LED_ALT)
+
+    @classmethod
+    def get_battery_threshold_path(cls) -> str:
+        """Find the battery exposing charge_control_end_threshold.
+
+        The name varies by model (CMB0 on some LG Grams, BAT0 on others),
+        so discover it instead of hardcoding.
+        """
+        try:
+            for battery in sorted(Path(cls.POWER_SUPPLY_DIR).iterdir()):
+                threshold = battery / "charge_control_end_threshold"
+                if threshold.exists():
+                    return str(threshold)
+        except OSError as e:
+            print(f"Error scanning {cls.POWER_SUPPLY_DIR}: {e}")
+        return cls.BATTERY_THRESHOLD
     
     @staticmethod
     def read_value(path: str) -> Optional[str]:
@@ -439,6 +459,10 @@ class LGGramManagerWindow(Adw.ApplicationWindow):
         
         self._create_widgets()
         self._check_driver()
+        
+        # Fn keys (backlight, fan mode, reader mode, Fn lock, touchpad) change
+        # settings in hardware, so poll sysfs to keep the UI in sync.
+        GLib.timeout_add_seconds(HW_POLL_INTERVAL_SECONDS, self._poll_hardware)
     
     def _create_widgets(self):
         """Create all GUI widgets."""
@@ -506,7 +530,7 @@ class LGGramManagerWindow(Adw.ApplicationWindow):
         battery_group = Adw.PreferencesGroup()
         battery_group.set_title("Battery")
         
-        self.battery_limit = BatteryRow(SysfsInterface.BATTERY_THRESHOLD)
+        self.battery_limit = BatteryRow(SysfsInterface.get_battery_threshold_path())
         battery_group.add(self.battery_limit)
         
         content.append(battery_group)
@@ -565,6 +589,21 @@ class LGGramManagerWindow(Adw.ApplicationWindow):
         self.kbd_led.refresh()
         self.tpad_led.refresh()
         self.fan_mode.refresh()
+    
+    def _poll_hardware(self) -> bool:
+        """Refresh controls that can be changed by hardware keys.
+        
+        The battery limit is skipped so the dropdown isn't reset while
+        the user is choosing a value. Rows with a write in progress are
+        skipped so the pending change isn't visually reverted.
+        """
+        for row in (self.reader_mode, self.fn_lock, self.tpad_led):
+            if row.switch.get_sensitive():
+                row.refresh()
+        self.kbd_led.refresh()
+        if any(btn.get_sensitive() for _, btn in self.fan_mode.buttons):
+            self.fan_mode.refresh()
+        return GLib.SOURCE_CONTINUE
     
     def _toggle_theme(self, action, param):
         """Toggle between light and dark themes."""
