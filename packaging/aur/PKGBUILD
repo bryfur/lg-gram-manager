@@ -9,7 +9,7 @@ license=('MIT')
 depends=('python' 'python-gobject' 'gtk4' 'libadwaita' 'polkit')
 install="$pkgname.install"
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
-sha256sums=('125855fb6998e9ff92659b7a2a5677e7c2c328f9bd37667ab2b750da95da4fda')
+sha256sums=('7e2bc78c593856acb8aa2ea712304880d0fe69afe450c4408defe1cf09e577c4')
 
 package() {
   cd "$pkgname-$pkgver"
