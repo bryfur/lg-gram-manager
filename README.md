@@ -29,8 +29,20 @@ The driver reports Fn-F1 (the LG control panel key) as F15. Bind F15 to `lg-gram
 
 ## Installation
 
+Packages for both Debian/Ubuntu and Arch-based distros are on the
+[releases page](https://github.com/bryfur/lg-gram-manager/releases).
+
+Debian / Ubuntu:
+
 ```bash
-sudo dpkg -i lg-gram-manager_1.0.0_all.deb
+sudo dpkg -i lg-gram-manager_*_all.deb
+```
+
+Arch / CachyOS / EndeavourOS:
+
+```bash
+sudo pacman -U lg-gram-manager-*-any.pkg.tar.zst
+sudo usermod -aG lg-gram $USER
 ```
 
 During installation, your user will be added to the `lg-gram` group, which grants permission to modify laptop settings without requiring a password each time. A system restart may be required for this change to take effect.

@@ -215,10 +215,17 @@ class FanModeRow(Adw.PreferencesRow):
     
     # Note: Performance mode (value=2) requires kernel 6.17+
     # On older kernels, fan_mode only supports 0 (optimal) and 1 (silent)
+    #
+    # Icons are listed in preference order; GTK picks the first one the
+    # active icon theme provides. Adwaita 45+ dropped emblem-default and
+    # utilities-system-monitor, so Adwaita-shipped fallbacks follow.
     FAN_MODES = [
-        {"value": 1, "icon": "weather-clear-symbolic", "label": "Silent"},
-        {"value": 0, "icon": "emblem-default-symbolic", "label": "Optimal"},
-        {"value": 2, "icon": "utilities-system-monitor-symbolic", "label": "Performance"},
+        {"value": 1, "label": "Silent",
+         "icons": ["weather-clear-symbolic", "power-profile-power-saver-symbolic"]},
+        {"value": 0, "label": "Optimal",
+         "icons": ["emblem-default-symbolic", "object-select-symbolic"]},
+        {"value": 2, "label": "Performance",
+         "icons": ["utilities-system-monitor-symbolic", "power-profile-performance-symbolic"]},
     ]
     
     def __init__(self, sysfs_path: str):
@@ -261,7 +268,7 @@ class FanModeRow(Adw.PreferencesRow):
         box.set_margin_bottom(10)
         
         # Icon
-        icon = Gtk.Image.new_from_icon_name(mode['icon'])
+        icon = Gtk.Image.new_from_gicon(Gio.ThemedIcon.new_from_names(mode['icons']))
         icon.set_pixel_size(32)
         box.append(icon)
         

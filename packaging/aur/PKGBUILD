@@ -1,6 +1,6 @@
 # Maintainer: Bryan Furia <bryan.furia@gmail.com>
 pkgname=lg-gram-manager
-pkgver=1.1.1
+pkgver=1.1.2
 pkgrel=1
 pkgdesc="GTK4 GUI for LG Gram laptop features: reader mode, FN lock, fan mode, battery limit, LEDs"
 arch=('any')
