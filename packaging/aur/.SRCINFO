@@ -1,0 +1,17 @@
+pkgbase = lg-gram-manager
+	pkgdesc = GTK4 GUI for LG Gram laptop features: reader mode, FN lock, fan mode, battery limit, LEDs
+	pkgver = 1.1.0
+	pkgrel = 1
+	url = https://github.com/bryfur/lg-gram-manager
+	install = lg-gram-manager.install
+	arch = any
+	license = MIT
+	depends = python
+	depends = python-gobject
+	depends = gtk4
+	depends = libadwaita
+	depends = polkit
+	source = lg-gram-manager-1.1.0.tar.gz::https://github.com/bryfur/lg-gram-manager/archive/refs/tags/1.1.0.tar.gz
+	sha256sums = b0dfa200c77452095b2be41dadc4b91127b2c938e87db75872b53b1b42465b3d
+
+pkgname = lg-gram-manager
