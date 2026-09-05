@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Install LG Gram Manager on Arch-based distros (CachyOS, EndeavourOS, ...)
-# Mirrors what debian/rules + debian/postinst do on Debian.
+# Mirrors what packaging/debian/rules + postinst do on Debian.
 #
 set -e
 
@@ -27,10 +27,10 @@ fi
 
 echo "Installing files..."
 install -D -m 755 lg_gram_manager_gtk.py /usr/bin/lg-gram-manager
-install -D -m 644 debian/org.lg-gram-manager.gtk.desktop /usr/share/applications/org.lg-gram-manager.gtk.desktop
-install -D -m 644 debian/org.lg-gram-manager.gtk.svg /usr/share/icons/hicolor/scalable/apps/org.lg-gram-manager.gtk.svg
-install -D -m 644 debian/org.lg-gram-manager.policy /usr/share/polkit-1/actions/org.lg-gram-manager.policy
-install -D -m 644 debian/99-lg-gram-manager.rules /usr/lib/udev/rules.d/99-lg-gram-manager.rules
+install -D -m 644 packaging/org.lg-gram-manager.gtk.desktop /usr/share/applications/org.lg-gram-manager.gtk.desktop
+install -D -m 644 packaging/org.lg-gram-manager.gtk.svg /usr/share/icons/hicolor/scalable/apps/org.lg-gram-manager.gtk.svg
+install -D -m 644 packaging/org.lg-gram-manager.policy /usr/share/polkit-1/actions/org.lg-gram-manager.policy
+install -D -m 644 packaging/99-lg-gram-manager.rules /usr/lib/udev/rules.d/99-lg-gram-manager.rules
 rm -f /etc/udev/rules.d/99-lg-gram-manager.rules  # location used by older versions of this script
 
 if ! getent group lg-gram >/dev/null 2>&1; then

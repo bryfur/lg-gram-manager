@@ -35,8 +35,11 @@ if [ -n "$MISSING_DEPS" ]; then
     sudo apt-get install -y $MISSING_DEPS
 fi
 
-# Make debian/rules executable
-chmod +x debian/rules
+# dpkg-buildpackage expects ./debian; packaging lives in packaging/debian
+rm -rf debian
+ln -s packaging/debian debian
+trap 'rm -f debian' EXIT
+chmod +x packaging/debian/rules
 
 # Clean previous builds
 echo "Cleaning previous builds..."

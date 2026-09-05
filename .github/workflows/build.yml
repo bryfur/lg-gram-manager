@@ -29,11 +29,12 @@ jobs:
         if: github.event_name == 'release'
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          sed -i "1s/([^)]*)/($VERSION)/" debian/changelog
+          sed -i "1s/([^)]*)/($VERSION)/" packaging/debian/changelog
 
       - name: Build package
         run: |
-          chmod +x debian/rules
+          ln -s packaging/debian debian
+          chmod +x packaging/debian/rules
           dpkg-buildpackage -us -uc -b
 
       - name: Move artifacts

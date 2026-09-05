@@ -1,10 +1,10 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: lg-gram-manager
-Upstream-Contact: Bryan <bryan@example.com>
-Source: https://github.com/lg-gram-manager
+Upstream-Contact: Bryan Furia <bryan.furia@gmail.com>
+Source: https://github.com/bryfur/lg-gram-manager
 
 Files: *
-Copyright: 2026 Bryan
+Copyright: 2026 Bryan Furia
 License: MIT
 
 License: MIT

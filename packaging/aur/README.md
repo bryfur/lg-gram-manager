@@ -1,6 +1,7 @@
 # AUR packaging
 
 Files for the `lg-gram-manager` package on the Arch User Repository.
+Shared assets (desktop entry, icon, polkit policy, udev rule) live one level up in `packaging/`.
 
 Release procedure:
 

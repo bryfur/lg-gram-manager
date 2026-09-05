@@ -12,12 +12,13 @@ build-venv/
 venv/
 .venv/
 
-# Debian packaging
-debian/lg-gram-manager/
-debian/.debhelper/
-debian/debhelper-build-stamp
-debian/files
-debian/*.substvars
+# Debian packaging (build.sh symlinks ./debian -> packaging/debian)
+/debian
+packaging/debian/lg-gram-manager/
+packaging/debian/.debhelper/
+packaging/debian/debhelper-build-stamp
+packaging/debian/files
+packaging/debian/*.substvars
 *.deb
 *.buildinfo
 *.changes
