@@ -1,0 +1,17 @@
+[Unit]
+Description=Restore the selected LG Gram profile
+After=systemd-modules-load.service
+ConditionPathExists=/etc/lg-gram-manager/boot.json
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/lg-gram-manager-profiles apply
+TimeoutStartSec=40
+Environment=PYTHONPATH=
+NoNewPrivileges=yes
+ProtectHome=yes
+ProtectSystem=full
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
