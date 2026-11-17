@@ -10,6 +10,11 @@ override_dh_auto_build:
 
 override_dh_auto_install:
 	install -D -m 755 lg_gram_manager_gtk.py debian/lg-gram-manager/usr/bin/lg-gram-manager
+	install -D -m 644 lg_gram_profiles.py debian/lg-gram-manager/usr/lib/python3/dist-packages/lg_gram_profiles.py
+	install -D -m 644 lg_gram_profile_ui.py debian/lg-gram-manager/usr/lib/python3/dist-packages/lg_gram_profile_ui.py
+	install -D -m 755 lg_gram_profiles.py debian/lg-gram-manager/usr/libexec/lg-gram-manager-profiles
+	install -D -m 644 packaging/org.lg-gram-manager.profiles.policy debian/lg-gram-manager/usr/share/polkit-1/actions/org.lg-gram-manager.profiles.policy
+	install -D -m 644 packaging/lg-gram-manager-boot.service debian/lg-gram-manager/lib/systemd/system/lg-gram-manager-boot.service
 	install -D -m 644 packaging/org.lg-gram-manager.gtk.desktop debian/lg-gram-manager/usr/share/applications/org.lg-gram-manager.gtk.desktop
 	install -D -m 644 packaging/org.lg-gram-manager.gtk.svg debian/lg-gram-manager/usr/share/icons/hicolor/scalable/apps/org.lg-gram-manager.gtk.svg
 	install -D -m 644 packaging/org.lg-gram-manager.policy debian/lg-gram-manager/usr/share/polkit-1/actions/org.lg-gram-manager.policy
@@ -20,4 +25,7 @@ override_dh_auto_clean:
 	dh_auto_clean
 
 override_dh_auto_test:
-	# Skip tests
+	python3 -m unittest discover -s tests
+
+override_dh_installsystemd:
+	dh_installsystemd --no-enable --no-start

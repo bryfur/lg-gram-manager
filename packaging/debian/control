@@ -9,7 +9,7 @@ Rules-Requires-Root: no
 
 Package: lg-gram-manager
 Architecture: all
-Depends: ${misc:Depends}, python3, python3-gi, gir1.2-gtk-4.0, gir1.2-adw-1
+Depends: ${misc:Depends}, python3, python3-gi, gir1.2-gtk-4.0, gir1.2-adw-1, pkexec, systemd
 Description: GUI for managing LG Gram laptop features on Linux
  A graphical user interface for managing LG Gram laptop features
  including reader mode, FN lock, fan mode, battery care, USB charging,

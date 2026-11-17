@@ -6,7 +6,7 @@ pkgdesc="GTK4 GUI for LG Gram laptop features: reader mode, FN lock, fan mode, b
 arch=('any')
 url="https://github.com/bryfur/lg-gram-manager"
 license=('MIT')
-depends=('python' 'python-gobject' 'gtk4' 'libadwaita' 'polkit')
+depends=('python' 'python-gobject' 'gtk4' 'libadwaita' 'polkit' 'systemd')
 install="$pkgname.install"
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
 sha256sums=('7e2bc78c593856acb8aa2ea712304880d0fe69afe450c4408defe1cf09e577c4')
@@ -14,6 +14,13 @@ sha256sums=('7e2bc78c593856acb8aa2ea712304880d0fe69afe450c4408defe1cf09e577c4')
 package() {
   cd "$pkgname-$pkgver"
   install -Dm755 lg_gram_manager_gtk.py "$pkgdir/usr/bin/lg-gram-manager"
+  local site_packages=$(python -c 'import sysconfig; print(sysconfig.get_path("purelib"))')
+  install -Dm644 lg_gram_profiles.py "$pkgdir$site_packages/lg_gram_profiles.py"
+  install -Dm644 lg_gram_profile_ui.py "$pkgdir$site_packages/lg_gram_profile_ui.py"
+  install -Dm755 lg_gram_profiles.py "$pkgdir/usr/libexec/lg-gram-manager-profiles"
+  sed -i '1c#!/usr/bin/python -I' "$pkgdir/usr/libexec/lg-gram-manager-profiles"
+  install -Dm644 packaging/lg-gram-manager-boot.service -t "$pkgdir/usr/lib/systemd/system"
+  install -Dm644 packaging/org.lg-gram-manager.profiles.policy -t "$pkgdir/usr/share/polkit-1/actions"
   install -Dm644 packaging/org.lg-gram-manager.gtk.desktop -t "$pkgdir/usr/share/applications"
   install -Dm644 packaging/org.lg-gram-manager.gtk.svg -t "$pkgdir/usr/share/icons/hicolor/scalable/apps"
   install -Dm644 packaging/org.lg-gram-manager.policy -t "$pkgdir/usr/share/polkit-1/actions"

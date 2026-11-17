@@ -2,6 +2,8 @@
 set -e
 
 if [ "$1" = "purge" ]; then
+    rm -f /etc/lg-gram-manager/boot.json
+    rmdir /etc/lg-gram-manager 2>/dev/null || true
     # Remove lg-gram group if it exists and has no members
     if getent group lg-gram > /dev/null 2>&1; then
         groupdel lg-gram 2>/dev/null || true

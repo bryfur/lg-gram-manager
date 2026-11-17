@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Optional, Callable, Tuple
 import threading
 import re
+from lg_gram_profile_ui import ProfileWindow
 
 
 # Kernel version that added 3-mode fan control (Optimal/Silent/Performance)
@@ -488,6 +489,10 @@ class LGGramManagerWindow(Adw.ApplicationWindow):
         menu_btn.set_icon_name("open-menu-symbolic")
         menu_btn.set_menu_model(menu)
         header.pack_start(menu_btn)
+
+        profiles_btn = Gtk.Button(icon_name='document-properties-symbolic', tooltip_text='Profiles')
+        profiles_btn.connect('clicked', lambda *_: ProfileWindow(self).present())
+        header.pack_end(profiles_btn)
         
         main_box.append(header)
         

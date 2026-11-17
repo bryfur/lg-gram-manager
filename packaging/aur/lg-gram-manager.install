@@ -3,3 +3,7 @@ post_install() {
   echo "    sudo usermod -aG lg-gram \$USER"
   echo "then log out and back in."
 }
+
+pre_remove() {
+  systemctl disable --now lg-gram-manager-boot.service 2>/dev/null || true
+}
